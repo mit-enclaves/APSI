@@ -276,6 +276,12 @@ endif()
 
 # Detect architecture
 include(DetectArch)
+
+set(APSI_FOURQ_AMD64 ON)
+set(HAVE_AVX2_EXTENSIONS ON)
+set(APSI_USE_AVX2 ON)
+set(APSI_USE_ASM ON)
+
 if(APSI_FOURQ_ARM64)
     # _ARM64_ needs to be set if the ARM64 optimizations are used
     # (in UNIX) or the generic implementation is used (Windows)

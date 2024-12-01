@@ -30,6 +30,7 @@ using namespace apsi::util;
 using namespace apsi::oprf;
 using namespace seal;
 
+unsigned int aux;
 class Timer {
 public:
     Timer() {
@@ -42,20 +43,9 @@ public:
 
 private:
     static void print_timestamp(const char* prefix) {
-        using namespace std::chrono;
-        auto now = high_resolution_clock::now();
-        auto duration = now.time_since_epoch();
-        
-        // Get seconds
-        auto secs = duration_cast<std::chrono::seconds>(duration);
-        
-        // Get just the nanoseconds part by taking remainder after seconds
-        auto nsecs = duration_cast<std::chrono::nanoseconds>(duration - secs).count() % 1000000000;
-        
-        // Print with exact same format as date +%s.%N
+        auto cycles = __rdtscp(&aux);
         std::cout << prefix 
-                 << secs.count() << "."
-                 << std::setfill('0') << std::setw(9) << nsecs
+                 << cycles
                  << std::endl;
     }
 };
@@ -64,10 +54,6 @@ private:
 static Timer global_timer;
 
 void *__dso_handle = (void *) &__dso_handle;
-
-unsigned int aux;
-uint64_t cycle_start;
-uint64_t cycle_end;
 
 namespace APSITests {
     namespace {
@@ -83,8 +69,7 @@ namespace APSITests {
         {
             SHA256 sha;
 
-            unsigned int aux;
-            unsigned long long cycle_start, cycle_end;
+            uint64_t cycle_start, cycle_end;
 
             Log::SetConsoleDisabled(true);
             // Log::SetLogLevel(Log::Level::info);
@@ -425,6 +410,7 @@ int main(int argc, char **argv)
 {
     cout << "Starting APSI tests" << endl;
 
+    uint64_t cycle_start, cycle_end;
     unsigned long long elapsed_time = 0;
     PSIParams params = APSITests::create_params1();
     for (size_t i = 0; i < NUM_REPEATS; i++) {
